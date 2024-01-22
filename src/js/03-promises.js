@@ -45,17 +45,18 @@ function handlerClick(evt) {
 function createPromise(position, delayStep) {
   return new Promise((res, rej) => {
     const shouldResolve = Math.random() > 0.3;
+    const initialDelay = firstDelay.value;
 
     setTimeout(() => {
       if (shouldResolve) {
         res({
           position: position + 1,
-          delay: delayStep + Number(firstDelay.value),
+          delay: delayStep + Number(initialDelay),
         });
       } else {
         rej({
           position: position + 1,
-          delay: delayStep + Number(firstDelay.value),
+          delay: delayStep + Number(initialDelay),
         });
       }
     }, delayStep)
