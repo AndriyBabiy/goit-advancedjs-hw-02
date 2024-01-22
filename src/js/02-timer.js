@@ -73,13 +73,14 @@ function convertMs(ms) {
   button.addEventListener('click', handlerClick);
 
   function handlerClick(evt) {
+    button.disabled = true;
+    input.disabled = true;
+    updateTimer(calendar.selectedDates[0] - currentDateUnix());
+
     let countdown = setInterval(() => {
       const timeDiff = calendar.selectedDates[0] - currentDateUnix();
 
-      timer.days.textContent = addLeadingZeroValue(convertMs(timeDiff).days);
-      timer.hours.textContent = addLeadingZeroValue(convertMs(timeDiff).hours);
-      timer.minutes.textContent = addLeadingZeroValue(convertMs(timeDiff).minutes);
-      timer.seconds.textContent = addLeadingZeroValue(convertMs(timeDiff).seconds);
+      updateTimer(timeDiff);
 
       if (timeDiff <= 0) {
         clearInterval(countdown);
@@ -89,9 +90,16 @@ function convertMs(ms) {
         timer.minutes.textContent = addLeadingZeroValue(0);
         timer.seconds.textContent = addLeadingZeroValue(0);
 
-        button.disabled = true;
+        input.disabled = false;
       }
     }, 1000)
+  }
+
+  function updateTimer(timerRemaining) {
+    timer.days.textContent = addLeadingZeroValue(convertMs(timerRemaining).days);
+    timer.hours.textContent = addLeadingZeroValue(convertMs(timerRemaining).hours);
+    timer.minutes.textContent = addLeadingZeroValue(convertMs(timerRemaining).minutes);
+    timer.seconds.textContent = addLeadingZeroValue(convertMs(timerRemaining).seconds);
   }
 
   function addLeadingZeroValue(num) {

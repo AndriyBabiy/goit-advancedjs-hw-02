@@ -2,11 +2,14 @@ import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 
 const input = {
+  form: document.querySelector('.form'),
   firstDelay: document.querySelector('[name="delay"]'),
   delayStep: document.querySelector('input[name="step"]'),
   amount: document.querySelector('input[name="amount"]'),
 }
 const button = document.querySelector('button[type="submit"]');
+
+const { firstDelay, delayStep, amount} = input;
 
 button.addEventListener('click', handlerClick);
 
@@ -14,26 +17,48 @@ function handlerClick(evt) {
   evt.preventDefault();
 
   setTimeout(() => {
-    for (let i = 1; i <= input.amount.value; i++) {
-      createPromise(i, input.delayStep.value * i)
-        .then(value => iziToastPopup(value, 'success'))
-        .catch(reason => iziToastPopup(reason, 'fail'));
-    }
+    for (let i = 0; i < amount.value; i++) {
+      createPromise(
+        i,
+        delayStep.value * i
+      )
+      .then(({ position, delay }) =>
+        iziToastPopup(
+          `✅ Fulfilled promise ${position} in ${delay}ms`,
+          'success'
+          )
+      )
+      .catch(({ position, delay }) =>
+        iziToastPopup(
+          `❌ Rejected promise ${position} in ${delay}ms`,
+          'fail'
+        )
+      );
 
-  }, input.firstDelay.value );
+      if (i === amount.value - 1) {
+        input.form.reset();
+      }
+    }
+  }, firstDelay.value );
 }
 
-function createPromise(position, delay) {
+function createPromise(position, delayStep) {
   return new Promise((res, rej) => {
     const shouldResolve = Math.random() > 0.3;
 
     setTimeout(() => {
       if (shouldResolve) {
-        res(`✅ Fulfilled promise ${position} in ${delay}ms`);
+        res({
+          position: position + 1,
+          delay: delayStep + Number(firstDelay.value),
+        });
       } else {
-        rej(`❌ Rejected promise ${position} in ${delay}ms`);
+        rej({
+          position: position + 1,
+          delay: delayStep + Number(firstDelay.value),
+        });
       }
-    }, delay)
+    }, delayStep)
   })
 }
 
