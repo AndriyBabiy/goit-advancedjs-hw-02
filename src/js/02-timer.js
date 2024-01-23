@@ -19,6 +19,7 @@ const timer = {
 }
 
 timer.elem.setAttribute('style', 'display: flex');
+
 [timer.days, timer.hours, timer.minutes]
   .map(elem =>
     elem.insertAdjacentHTML('afterend', `<span class='divider'>${divider}</span>`)
@@ -51,6 +52,8 @@ const options = {
 
 const calendar = flatpickr(input, options);
 
+button.addEventListener('click', handlerClick);
+
 function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
@@ -68,46 +71,44 @@ function convertMs(ms) {
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
-  }
+}
 
-  button.addEventListener('click', handlerClick);
+function handlerClick(evt) {
+  button.disabled = true;
+  input.disabled = true;
+  updateTimer(calendar.selectedDates[0] - currentDateUnix());
 
-  function handlerClick(evt) {
-    button.disabled = true;
-    input.disabled = true;
-    updateTimer(calendar.selectedDates[0] - currentDateUnix());
+  let countdown = setInterval(() => {
+    const timeDiff = calendar.selectedDates[0] - currentDateUnix();
 
-    let countdown = setInterval(() => {
-      const timeDiff = calendar.selectedDates[0] - currentDateUnix();
+    updateTimer(timeDiff);
 
-      updateTimer(timeDiff);
+    if (timeDiff <= 0) {
+      clearInterval(countdown);
 
-      if (timeDiff <= 0) {
-        clearInterval(countdown);
+      timer.days.textContent = addLeadingZeroValue(0);
+      timer.hours.textContent = addLeadingZeroValue(0);
+      timer.minutes.textContent = addLeadingZeroValue(0);
+      timer.seconds.textContent = addLeadingZeroValue(0);
 
-        timer.days.textContent = addLeadingZeroValue(0);
-        timer.hours.textContent = addLeadingZeroValue(0);
-        timer.minutes.textContent = addLeadingZeroValue(0);
-        timer.seconds.textContent = addLeadingZeroValue(0);
-
-        input.disabled = false;
-      }
-    }, 1000)
-  }
-
-  function updateTimer(timerRemaining) {
-    timer.days.textContent = addLeadingZeroValue(convertMs(timerRemaining).days);
-    timer.hours.textContent = addLeadingZeroValue(convertMs(timerRemaining).hours);
-    timer.minutes.textContent = addLeadingZeroValue(convertMs(timerRemaining).minutes);
-    timer.seconds.textContent = addLeadingZeroValue(convertMs(timerRemaining).seconds);
-  }
-
-  function addLeadingZeroValue(num) {
-    let result = String(num);
-
-    if (result.length < 2) {
-      result = result.padStart(2, "0");
+      input.disabled = false;
     }
+  }, 1000)
+}
 
-    return result;
+function updateTimer(timerRemaining) {
+  timer.days.textContent = addLeadingZeroValue(convertMs(timerRemaining).days);
+  timer.hours.textContent = addLeadingZeroValue(convertMs(timerRemaining).hours);
+  timer.minutes.textContent = addLeadingZeroValue(convertMs(timerRemaining).minutes);
+  timer.seconds.textContent = addLeadingZeroValue(convertMs(timerRemaining).seconds);
+}
+
+function addLeadingZeroValue(num) {
+  let result = String(num);
+
+  if (result.length < 2) {
+    result = result.padStart(2, "0");
   }
+
+  return result;
+}
